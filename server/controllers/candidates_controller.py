@@ -4,19 +4,14 @@ from flask import make_response, request
 from flask_restful import Resource
 from models import Candidate
 
-class CandidateRegister (Resource):
-
-    # def get(self):
-    #     candidates = [candidate.to_dict() for candidate in Candidate.query.all()]
-
-    #     return make_response(candidates, 200)
-
+class CandidateSignUp (Resource):
 
     def post(self):
         candidate = Candidate(
-                first_name = request.json['first_name'],
-                last_name = request.json['last_name'],
-                email = request.json['email']
+                first_name = request.json.get('first_name'),
+                last_name = request.json.get('last_name'),
+                email = request.json.get('email'),
+                hashed_password = request.json.get('hashed_password')
             )
 
         db.session.add(candidate)
@@ -27,7 +22,6 @@ class CandidateRegister (Resource):
 
         else:
             make_response({"error":"Unable to create candidate"})
-
     
 
 class CandidateLogin(Resource):

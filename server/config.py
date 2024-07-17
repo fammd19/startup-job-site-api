@@ -2,6 +2,7 @@ from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 from flask_migrate import Migrate
+from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 
 
@@ -22,6 +23,8 @@ db.init_app(app)
 bcrypt = Bcrypt()
 
 app.register_blueprint(api_bp, url_prefix='/api')
+
+CORS(app)
 
 
 
