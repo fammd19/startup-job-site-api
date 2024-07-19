@@ -58,21 +58,50 @@ class Candidate (db.Model, SerializerMixin):
     def __repr__(self):
         return f"<Candidate {self.id}: {self.last_name}, {self.first_name}>"
 
-# class Company (db.Model, SerializerMixin):
-#     __tablename__ = "companies"
 
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String, nullable=False)
-#     size = db.Column(db.Integer, nullable=False)
-#     industry = db.Column(db.String, nullable=False)
-#     certifications = db.Column(db.String, nullable=False) #list of options - db.Choice?
-#     website_link = db.Column(db.String, nullable=False)
-#     facebook_link = db.Column(db.String)
-#     instagram_link = db.Column(db.String)
-#     linkedin_link = db.Column(db.String)
+#draft - not migrated or tested
 
-#     # company_admin = db.relationship('CompanyAdmin', back_populates='company', cascade='all,delete-orphan')
-#     # job = db.relationship('Job', back_populates='company', cascade='all,delete-orphan')
+class Company (db.Model, SerializerMixin):
+    __tablename__ = "companies"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    size = db.Column(db.Integer, nullable=False)
+    industry = db.Column(db.String, nullable=False)
+    csr_tags = db.Column(db.String, nullable=False)
+    website_link = db.Column(db.String, nullable=False)
+    facebook_link = db.Column(db.String)
+    instagram_link = db.Column(db.String)
+    linkedin_link = db.Column(db.String)
+
+    @validates('industry')
+    def validate_industry(self, key, industry):
+        industries = ["Agriculture","Construction","Health & Education","Financial Services","Hospitality","Legal","Manufactuting","Retail","Technology"]
+
+        if industry.lower() not in industries:
+            raise ValueError("Industry must be from the predefined list")
+
+        return industry
+
+    @validates('csr_tags')
+    def validate_csr_tags(self, key, csr_tags):
+        tags = ["B Corp","NFP"]
+
+        if csr_tag.lower() not in tags:
+            raise ValueError("CSR tag must be from the predefined list")
+
+        return csr_tags
+
+    @validates('website_link','facebook_link','instagram_link','linkedin_link')
+    def validate_links(self, key, value):
+
+        if not re.match(r'^((http|https)://)[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)$', value):
+            raise ValueError("Link not valid")
+
+        return value
+
+    # company_admin = db.relationship('CompanyAdmin', back_populates='company', cascade='all,delete-orphan')
+    # job = db.relationship('Job', back_populates='company', cascade='all,delete-orphan')
 
 
 # class CompanyAdmin (db.Model, SerializerMixin):

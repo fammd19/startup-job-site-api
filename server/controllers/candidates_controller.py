@@ -19,7 +19,7 @@ class CandidateSignUp (Resource):
 
         if candidate.id:
 
-            session[canddiate_id] = candidate.id
+            session['candidate_id'] = candidate.id
 
             return make_response(candidate.to_dict(), 201)
 
@@ -64,7 +64,7 @@ class CandidateAccount (Resource):
     def get(self):
 
         if 'candidate_id' not in session:
-            return make_response ({"error":"Unauthorised"}, 404)
+            return make_response ({"error":"Unauthorised"}, 403)
 
         candidate_id = session['candidate_id']
 
@@ -76,7 +76,7 @@ class CandidateAccount (Resource):
         
         else: 
 
-            return make_response({"message":"No candidate found"}, 404)
+            return make_response({"message":"No candidate found"}, 403)
 
     def patch(self):
 
@@ -92,68 +92,23 @@ class CandidateAccount (Resource):
 
             return make_response(candidate.to_dict(), 203)
 
+    def delete(self):
 
-###########    
+        candidate_id = session['candidate_id']
 
+        candidate = Candidate.query.filter(Candidate.id == candidate_id).first()
 
-# class CandidateAccount (Resource):
+        if candidate:
 
-#     def get(self, id):
-#         candidate = Candidate.query.filter(Candidate.id == id).first()
+            db.session.delete(candidate)
+            db.session.commit()
 
-#         if candidate:
+            session.pop('candidate_id', None)
 
-#             return make_response(candidate.to_dict(), 200)
+            return make_response(candidate.to_dict(), 204)
 
-#         else:
-#             return make_response({"message":"No candidate found"}, 404)
+        else: 
 
-#     def patch(self, id):
-#         candidate = Candidate.query.filter(Candidate.id == id).first()
+            return make_response({"message":"No candidate found"}, 403)
 
-
-#         #check this func and status code
-#         if candidate:
-#             for attr in request.json:
-#                 setAttr(candidate, attr, candidate['attr'])
-                
-#             db.session.update(candidate)
-#             db.session.commit()
-
-#             return make_response(candidate.to_dict(), 203)
-
-    
-#     def delete(self, id):
-
-#         candidate = Candidate.query.filter(Candidate.id == id).first()
-
-#         db.session.delete(candidate)
-#         db.session.commit()
-
-#         make_response(candidate.to_dict(), 204)
-
-            
-# class CandidateLogin(Resource):
-
-#     def post(self):
-
-#         if not session['candidate_id']:
-
-#             candidate = Canidate.query.filter(Canidate.email == request.json.get('email')).first()
-
-#             if candidate:
-#                 session['canddiate_id'] = candidate.id
-
-#                 return make_response({"message":"Login successful"}, 200)
-
-#         else:
-#             return make_response({"error":"Unathorised"}, 401)
-
-#     def get (self):
-#         if session['candidate_id']:
-
-#             return make_response({"message":f"Candidate {session['candidate_id']} is logged in"}, 200)
-
-#         else:
-#             return make_response({"message":"Not candidate logged in"},403)
 
