@@ -12,6 +12,7 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///job-board.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
+app.config['SECRET_KEY'] = 'my_key'
 
 migrate = Migrate(app, db)
 
