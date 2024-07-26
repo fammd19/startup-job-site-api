@@ -1,8 +1,7 @@
-#/candidate
 from config import db, bcrypt
 from flask import make_response, request, session
 from flask_restful import Resource
-from models import Candidate
+from models import Candidate, SavedJob
 
 class CandidateSignUp (Resource):
 
@@ -110,5 +109,20 @@ class CandidateAccount (Resource):
         else: 
 
             return make_response({"message":"No candidate found"}, 403)
+
+class CandidateJobs (Resource):
+
+    def get(self):
+
+        jobs = SavedJob.query.filter(SavedJob.candidate_id == session['candidate_id']).all()
+
+
+        if jobs:
+            saved_jobs = [ job.id for job in jobs ]
+
+            return make_response (saved_jobs, 200)
+
+        else:
+            return make_response ({"message":"No saved jobs"}, 200)
 
 
