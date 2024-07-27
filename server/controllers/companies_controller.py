@@ -6,6 +6,10 @@ from models import Company
 class CompanySignUp (Resource):
 
     def post(self):
+
+        if 'company_id' in session:
+            return make_response ({"error":"Unauthorised. Company already logged in."}, 403)
+            
         company = Company(
                 name = request.json.get('name'),
                 bsn = request.json.get('bsn'),
@@ -34,6 +38,10 @@ class CompanySignUp (Resource):
 class CompanyLogin(Resource):
     
     def post(self):
+
+        if 'company_id' in session:
+            return make_response ({"error":"Unauthorised. Company already logged in."}, 403)
+
         admin_email = request.json.get('admin_email')
         password = request.json.get('hashed_password')
 
@@ -54,6 +62,10 @@ class CompanyLogin(Resource):
 
 class CompanyLogout(Resource):
     def delete(self):
+
+        if 'company_id' not in session:
+            return make_response ({"error":"Unauthorised. No company logged in."}, 403)
+
         session.pop('company_id', None)
         return make_response({"message":"Logout successful"}, 204)
 

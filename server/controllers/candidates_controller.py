@@ -30,7 +30,7 @@ class CandidateLogin(Resource):
     
     def post(self):
 
-        if not session['candidate_id']: 
+        if 'candidate_id' not in session:
 
             email = request.json.get('email')
             password = request.json.get('hashed_password')
