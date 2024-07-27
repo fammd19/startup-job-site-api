@@ -20,7 +20,7 @@ class Candidate (db.Model, SerializerMixin):
     saved_jobs = db.relationship('SavedJob', back_populates='candidate', cascade='all,delete-orphan')
     jobs = association_proxy('saved_jobs', 'job', creator=lambda j:SavedJob(job=j))
 
-    serialize_rules = ('-saved_jobs.candidate',)
+    serialize_rules = ('-saved_jobs.candidate', '-saved_jobs.candidate_id', '-jobs.saved_jobs')
     
     @validates('first_name', 'last_name')
     def validate_name(self, key, value):
@@ -77,6 +77,8 @@ class Company (db.Model, SerializerMixin):
     _hashed_password = db.Column(db.String, nullable=False)
 
     jobs = db.relationship('Job', back_populates='company', cascade='all,delete-orphan')
+
+    serialize_rules = ('-jobs.company',)
 
     @validates('bsn')
     def validate_name(self, key, bsn):
@@ -135,7 +137,7 @@ class Company (db.Model, SerializerMixin):
         return bcrypt.check_password_hash(self._hashed_password, password.encode('utf-8'))
 
     def __repr__(self):
-        return f"<Company admin {self.id}: {self.last_name}, {self.first_name}>"
+        return f"<Company admin {self.id}: {self.name}>"
 
     # @validates('website_link','facebook_link','instagram_link','linkedin_link')
     # def validate_links(self, key, value):
@@ -164,8 +166,8 @@ class Job (db.Model, SerializerMixin):
     company = db.relationship('Company', back_populates='jobs')
     saved_jobs = db.relationship('SavedJob', back_populates='job')
 
+    serialize_rules = ('-company_id', '-company.jobs', '-company._hashed_password', '-company.admin_email','-saved_jobs')
 
-    
 class SavedJob (db.Model, SerializerMixin):
     __tablename__ = "saved_jobs"
 
@@ -177,5 +179,17 @@ class SavedJob (db.Model, SerializerMixin):
     candidate = db.relationship('Candidate', back_populates='saved_jobs')
     job = db.relationship('Job', back_populates='saved_jobs')
 
-    serealize_rules =('-job.id',)
+    serialize_rules = ('-candidate_id','-job_id', '-candidate')
+
+    @validates('candidate_id', 'job_id')
+    def validate_unique(self, key, value):
+
+        if self.candidate_id and self.job_id:
+            existing_saved_job = SavedJob.query.filter_by(candidate_id=self.candidate_id, job_id=self.job_id).first()
+
+            if existing_saved_job:
+                raise ValueError("This job has already been saved by this candidate")
+        
+        return value
+
 

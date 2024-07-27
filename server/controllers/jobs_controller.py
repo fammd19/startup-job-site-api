@@ -1,11 +1,15 @@
 from config import db, bcrypt
 from flask import make_response, request, session
 from flask_restful import Resource
-from models import Job, SavedJob
+from models import Job
 
 class CreateJob (Resource):
 
     def post(self):
+        
+        if 'company_id' not in session:
+            return make_response ({"error":"Unauthorised. No company logged in."}, 403)
+
         job = Job(
                 title = request.json.get('title'),
                 salary = request.json.get('salary'),
@@ -30,42 +34,28 @@ class CreateJob (Resource):
             return make_response({"error": "Unable to create job"}, 400)
 
 
-class DisplayJobs (Resource):
+class ViewJobs(Resource):
 
     def get(self):
         jobs = Job.query.all()
 
-        if len(jobs)>1:
-            jobs_dict = []
-            for job in jobs:
-                jobs_dict.append(job.to_dict())
-            
+        if len(jobs) > 0:
+            jobs_dict = [job.to_dict() for job in jobs]
             return make_response(jobs_dict, 200)
-
         else:
             return make_response({"message": "No jobs available"}, 200)
 
 
-class SaveJob (Resource):
+class ViewJobById (Resource):
 
-    def post(self,id):
-        # job = Job.query.filter(job.id==job_id)
+    def get(self, id):
+        
+        job = Job.query.filter(Job.id == id).first()
 
-        # if job:
-        saved_job = SavedJob (
-            candidate_id = session['candidate_id'],
-            job_id = id
-        )
-
-        db.session.add(saved_job)
-        db.session.commit()
+        if job:
+            return make_response(job.to_dict(), 200)
             
-        return make_response({"message": "Added"}, 201)
+        else:
+            return make_response({"message": "No jobs found with this ID"}, 404)
 
-        # else:
-        #     return make_response({"error": "Unactionable"}, 400)
 
-class ViewJob (Resource):
-
-    def get(self):
-        pass

@@ -1,7 +1,7 @@
 from config import db, bcrypt
 from flask import make_response, request, session
 from flask_restful import Resource
-from models import Candidate, SavedJob
+from models import Candidate
 
 class CandidateSignUp (Resource):
 
@@ -30,32 +30,39 @@ class CandidateLogin(Resource):
     
     def post(self):
 
-        email = request.json.get('email')
-        password = request.json.get('hashed_password')
+        if not session['candidate_id']: 
 
-        if email and password:
+            email = request.json.get('email')
+            password = request.json.get('hashed_password')
 
-            candidate = Candidate.query.filter(Candidate.email == email).first()
+            if email and password:
 
-            if candidate and candidate.authenticate(password):
-                session['candidate_id'] = candidate.id
-                return make_response({"message":f"Candidate {candidate.first_name} logged in"})
+                candidate = Candidate.query.filter(Candidate.email == email).first()
+
+                if candidate and candidate.authenticate(password):
+                    session['candidate_id'] = candidate.id
+                    return make_response({"message":f"Candidate {candidate.first_name} logged in"})
+
+                else:
+                    return make_response({"error":"Unauthorised"}, 401)
 
             else:
-                return make_response({"error":"Unauthorised"}, 404)
+                
+                return make_response({"error":"Email and password are required for login"}, 404)
 
         else:
-            
-            return make_response({"error":"Email and password are required for login"}, 404)
-
-
+            return make_response({"error":"User already logged in"}, 404)
 
 class CandidateLogout(Resource):
     def delete(self):
 
-        session.pop('candidate_id', None)
+        if 'candidate_id' not in session:
+            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
 
-        return make_response({"message":"Logout successful"}, 204)
+        else:
+            session.pop('candidate_id', None)
+            return make_response({"message":"Logout successful."}, 204)
+
 
 
 class CandidateAccount (Resource):
@@ -63,7 +70,7 @@ class CandidateAccount (Resource):
     def get(self):
 
         if 'candidate_id' not in session:
-            return make_response ({"error":"Unauthorised"}, 403)
+            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
 
         candidate_id = session['candidate_id']
 
@@ -75,9 +82,12 @@ class CandidateAccount (Resource):
         
         else: 
 
-            return make_response({"message":"No candidate found"}, 403)
+            return make_response({"message":"No candidate found."}, 403)
 
     def patch(self):
+
+        if 'candidate_id' not in session:
+            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
 
         candidate_id = session['candidate_id']
 
@@ -92,6 +102,9 @@ class CandidateAccount (Resource):
             return make_response(candidate.to_dict(), 203)
 
     def delete(self):
+
+        if 'candidate_id' not in session:
+            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
 
         candidate_id = session['candidate_id']
 
@@ -109,20 +122,5 @@ class CandidateAccount (Resource):
         else: 
 
             return make_response({"message":"No candidate found"}, 403)
-
-class CandidateJobs (Resource):
-
-    def get(self):
-
-        jobs = SavedJob.query.filter(SavedJob.candidate_id == session['candidate_id']).all()
-
-
-        if jobs:
-            saved_jobs = [ job.id for job in jobs ]
-
-            return make_response (saved_jobs, 200)
-
-        else:
-            return make_response ({"message":"No saved jobs"}, 200)
 
 
