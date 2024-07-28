@@ -27,7 +27,7 @@ class CreateJob (Resource):
 
         
         if job.id:
-            return make_response({"message": "Job posted"}, 201)
+            return make_response(job.to_dict(), 201)
 
         else:
             
@@ -58,7 +58,7 @@ class JobsByCompany (Resource):
             return make_response(jobs_dict, 200)
             
         else:
-            return make_response({"message": "No jobs found from this company"}, 404)
+            return make_response({"message": "No jobs posted yet for this company"}, 404)
 
 
 class JobById (Resource):
