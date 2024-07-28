@@ -117,7 +117,7 @@ class CandidateAccount (Resource):
 
             session.pop('candidate_id', None)
 
-            return make_response(candidate.to_dict(), 204)
+            return make_response({"message":"Candidated deleted"}, 204)
 
         else: 
 

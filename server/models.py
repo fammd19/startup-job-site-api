@@ -8,6 +8,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 import re
 
+
 class Candidate (db.Model, SerializerMixin):
     __tablename__ = "candidates"
 
@@ -60,12 +61,13 @@ class Candidate (db.Model, SerializerMixin):
         return f"<Candidate {self.id}: {self.last_name}, {self.first_name}>"
 
 
+
 class Company (db.Model, SerializerMixin):
     __tablename__ = "companies"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    bsn = db.Column(db.Integer, nullable=False)
+    name = db.Column(db.String, nullable=False, unique=True)
+    abn = db.Column(db.Integer, unique=True)
     size = db.Column(db.Integer, nullable=False)
     industry = db.Column(db.String, nullable=False)
     csr_tags = db.Column(db.String, nullable=False)
@@ -80,16 +82,39 @@ class Company (db.Model, SerializerMixin):
 
     serialize_rules = ('-jobs.company',)
 
-    @validates('bsn')
-    def validate_name(self, key, bsn):
+    @validates('name')
+    def validate_name(self, key, name):
+        if not name:
+            raise ValueError("First and last name are required fields")
+
+        if Company.query.filter(Company.name == name).first():
+            raise ValueError("Company registered to an existing company")
+
+        return name
+
+    @validates('size')
+    def validate_name(self, key, size):
+        if not isinstance(size, (int,)):
+            raise ValueError("Size must be an integer")
+
+        if size <= 0 or size > 200:
+            raise ValueError("Size must be between 1 and 200")
+
+        return size
+
+    @validates('abn')
+    def validate_abn(self, key, abn):
         
-        if not bsn:
-            raise ValueError("BSN is a required field")
+        if not abn or not isinstance(abn, (int,)):
+            raise ValueError("ABN is a required field and must be a number")
 
-        if Company.query.filter(Company.bsn == bsn).first():
-            raise ValueError("BSN registered to an existing company")
+        if not len(str(abn)) == 11:
+            raise ValueError("ABN should have 11 digits")
 
-        return bsn
+        if Company.query.filter(Company.abn == abn).first():
+            raise ValueError("ABN registered to an existing company")
+
+        return abn
 
     @validates('industry')
     def validate_industry(self, key, industry):
@@ -123,6 +148,15 @@ class Company (db.Model, SerializerMixin):
 
         return admin_email
 
+    @validates('website_link','facebook_link','instagram_link','linkedin_link')
+    def validate_links(self, key, value):
+
+        if value: 
+            if not re.match(r'^(https?:\/\/)?(www\.)?([A-Za-z0-9._%+-]+\.[A-Za-z]{2,6})(\/[A-Za-z0-9._%+-]*)*$', value):
+                raise ValueError("Link not valid")
+
+        return value
+
     @hybrid_property
     def hashed_password (self):
         return self._hashed_password
@@ -138,14 +172,6 @@ class Company (db.Model, SerializerMixin):
 
     def __repr__(self):
         return f"<Company admin {self.id}: {self.name}>"
-
-    # @validates('website_link','facebook_link','instagram_link','linkedin_link')
-    # def validate_links(self, key, value):
-
-    #     if not re.match(r'^((http|https)://)[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)$', value):
-    #         raise ValueError("Link not valid")
-
-    #     return value
 
 
 

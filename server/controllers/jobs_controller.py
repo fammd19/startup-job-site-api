@@ -19,7 +19,7 @@ class CreateJob (Resource):
                 application_link = request.json.get('application_link'),
                 location = request.json.get('location'),
                 experience = request.json.get('experience'),
-                company_id = 1
+                company_id = session['company_id']
             )
 
         db.session.add(job)
@@ -91,6 +91,9 @@ class JobById (Resource):
 
             return make_response(job.to_dict(), 203)
 
+        else:
+            return make_response({"error":"Unauthorised"}, 403)
+
 
 
     def delete(self, id):
@@ -103,8 +106,8 @@ class JobById (Resource):
         if job:
             
             if job.company_id == session['company_id']:
-                session.delete(job)
-                session.commit()
+                db.session.delete(job)
+                db.session.commit()
 
                 return make_response({"message":"Job successfully deleted"}, 203)
 

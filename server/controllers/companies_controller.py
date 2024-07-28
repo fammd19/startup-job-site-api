@@ -9,10 +9,10 @@ class CompanySignUp (Resource):
 
         if 'company_id' in session:
             return make_response ({"error":"Unauthorised. Company already logged in."}, 403)
-            
+
         company = Company(
                 name = request.json.get('name'),
-                bsn = request.json.get('bsn'),
+                abn = request.json.get('abn'),
                 size = request.json.get('size'),
                 industry = request.json.get('industry'),
                 csr_tags = request.json.get('csr_tags'),
@@ -114,9 +114,20 @@ class CompanyAccount(Resource):
             db.session.commit()
 
             session.pop('company_id', None)
-            return make_response(company.to_dict(), 204)
+            return make_response({"message":"Company deleted"}, 204)
 
         else: 
             return make_response({"message":"No company found"}, 403)
 
 
+class CompanyById(Resource):
+
+    def get(self, id):
+        
+        company = Company.query.filter(Company.id == id).first()
+
+        if company:
+            return make_response(company.to_dict(), 200)
+            
+        else:
+            return make_response({"message": "No company found with this ID"}, 404)
