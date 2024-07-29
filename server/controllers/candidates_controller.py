@@ -48,16 +48,16 @@ class CandidateLogin(Resource):
 
             else:
                 
-                return make_response({"error":"Email and password are required for login"}, 404)
+                return make_response({"error":"Email and password are required for login"}, 400)
 
         else:
-            return make_response({"error":"User already logged in"}, 404)
+            return make_response({"error":"User already logged in"}, 401)
 
 class CandidateLogout(Resource):
     def delete(self):
 
         if 'candidate_id' not in session:
-            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No user logged in."}, 401)
 
         else:
             session.pop('candidate_id', None)
@@ -70,7 +70,7 @@ class CandidateAccount (Resource):
     def get(self):
 
         if 'candidate_id' not in session:
-            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No user logged in."}, 401)
 
         candidate_id = session['candidate_id']
 
@@ -87,7 +87,7 @@ class CandidateAccount (Resource):
     def patch(self):
 
         if 'candidate_id' not in session:
-            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No user logged in."}, 401)
 
         candidate_id = session['candidate_id']
 
@@ -104,7 +104,7 @@ class CandidateAccount (Resource):
     def delete(self):
 
         if 'candidate_id' not in session:
-            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No user logged in."}, 401)
 
         candidate_id = session['candidate_id']
 
@@ -121,6 +121,6 @@ class CandidateAccount (Resource):
 
         else: 
 
-            return make_response({"message":"No candidate found"}, 403)
+            return make_response({"message":"No candidate found"}, 404)
 
 

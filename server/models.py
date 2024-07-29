@@ -85,10 +85,10 @@ class Company (db.Model, SerializerMixin):
     @validates('name')
     def validate_name(self, key, name):
         if not name:
-            raise ValueError("First and last name are required fields")
+            raise ValueError("Name cannot be blank")
 
         if Company.query.filter(Company.name == name).first():
-            raise ValueError("Company registered to an existing company")
+            raise ValueError("Name registered to an existing company")
 
         return name
 
@@ -194,6 +194,16 @@ class Job (db.Model, SerializerMixin):
 
     serialize_rules = ('-company_id', '-company.jobs', '-company._hashed_password', '-company.admin_email','-saved_jobs')
 
+    @validates('department')
+    def validate_industry(self, key, department):
+        departments = ["management","hr","finance","operations","tech","marketing","legal","customer services"]
+
+        if department.lower() not in industries:
+            raise ValueError("Industry must be from the predefined list")
+
+        return industry
+
+
 class SavedJob (db.Model, SerializerMixin):
     __tablename__ = "saved_jobs"
 
@@ -207,15 +217,5 @@ class SavedJob (db.Model, SerializerMixin):
 
     serialize_rules = ('-candidate_id','-job_id', '-candidate')
 
-    @validates('candidate_id', 'job_id')
-    def validate_unique(self, key, value):
-
-        if self.candidate_id and self.job_id:
-            existing_saved_job = SavedJob.query.filter_by(candidate_id=self.candidate_id, job_id=self.job_id).first()
-
-            if existing_saved_job:
-                raise ValueError("This job has already been saved by this candidate")
-        
-        return value
 
 

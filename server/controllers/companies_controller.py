@@ -8,7 +8,7 @@ class CompanySignUp (Resource):
     def post(self):
 
         if 'company_id' in session:
-            return make_response ({"error":"Unauthorised. Company already logged in."}, 403)
+            return make_response ({"error":"Unauthorised. Company already logged in."}, 401)
 
         company = Company(
                 name = request.json.get('name'),
@@ -40,7 +40,7 @@ class CompanyLogin(Resource):
     def post(self):
 
         if 'company_id' in session:
-            return make_response ({"error":"Unauthorised. Company already logged in."}, 403)
+            return make_response ({"error":"Unauthorised. Company already logged in."}, 401)
 
         admin_email = request.json.get('admin_email')
         password = request.json.get('hashed_password')
@@ -50,13 +50,13 @@ class CompanyLogin(Resource):
 
             if company and company.authenticate(password):
                 session['company_id'] = company.id
-                return make_response({"message":f"Company {company.name} logged in"})
+                return make_response({"message":f"Company {company.name} logged in"}, 200)
 
             else:
-                return make_response({"error":"Unauthorised"}, 404)
+                return make_response({"error":"Unauthorised"}, 401)
 
         else:
-            return make_response({"error":"Email and password are required for login"}, 404)
+            return make_response({"error":"Email and password are required for login"}, 400)
 
 
 
@@ -64,7 +64,7 @@ class CompanyLogout(Resource):
     def delete(self):
 
         if 'company_id' not in session:
-            return make_response ({"error":"Unauthorised. No company logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No company logged in."}, 401)
 
         session.pop('company_id', None)
         return make_response({"message":"Logout successful"}, 204)
@@ -74,7 +74,7 @@ class CompanyAccount(Resource):
 
     def get(self):
         if 'company_id' not in session:
-            return make_response ({"error":"Unauthorised. No company logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No company logged in."}, 401)
 
         company_id = session['company_id']
         company = Company.query.filter(Company.id == company_id).first()
@@ -83,12 +83,12 @@ class CompanyAccount(Resource):
             return make_response(company.to_dict(), 200)
         
         else: 
-            return make_response({"message":"No company found."}, 403)
+            return make_response({"message":"No company found."}, 404)
 
     def patch(self):
 
         if 'company_id' not in session:
-            return make_response ({"error":"Unauthorised. No company logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No company logged in."}, 401)
 
         company_id = session['company_id']
         company = Company.query.filter(Company.id == company_id).first()
@@ -103,7 +103,7 @@ class CompanyAccount(Resource):
     def delete(self):
 
         if 'company_id' not in session:
-            return make_response ({"error":"Unauthorised. No company logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No company logged in."}, 401)
 
         company_id = session['company_id']
         company = Company.query.filter(Company.id == company_id).first()
@@ -117,7 +117,7 @@ class CompanyAccount(Resource):
             return make_response({"message":"Company deleted"}, 204)
 
         else: 
-            return make_response({"message":"No company found"}, 403)
+            return make_response({"error":"No company account found"}, 404)
 
 
 class CompanyById(Resource):

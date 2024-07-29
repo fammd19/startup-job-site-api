@@ -8,13 +8,19 @@ class CreateJob (Resource):
     def post(self):
         
         if 'company_id' not in session:
-            return make_response ({"error":"Unauthorised. No company logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No company logged in."}, 401)
+        
+        existing_jobs = Job.query.filter(Job.company_id == session['company_id']).all()
+        
+        for job in existing_jobs:
+            if job.title.lower()==request.json.get('title').lower() and job.salary==request.json.get('salary'):
+                return make_response({"error":"A job with the same title & salary exists for this company."}, 403)
 
         job = Job(
                 title = request.json.get('title'),
                 salary = request.json.get('salary'),
                 salary_comments = request.json.get('salary_comments'),
-                department = request.json.get('department'),
+                department = request.json.get('department').lower(),
                 role_description = request.json.get('role_description'),
                 application_link = request.json.get('application_link'),
                 location = request.json.get('location'),
@@ -77,7 +83,7 @@ class JobById (Resource):
     def patch(self, id):
 
         if 'company_id' not in session:
-            return make_response ({"error":"Unauthorised. No company logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No company logged in."}, 401)
 
         company_id = session['company_id']
 
@@ -99,7 +105,7 @@ class JobById (Resource):
     def delete(self, id):
         
         if 'company_id' not in session:
-            return make_response ({"error":"Unauthorised. No company logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No company logged in."}, 401)
 
         job = Job.query.filter(Job.id == id).first()
 
@@ -109,10 +115,10 @@ class JobById (Resource):
                 db.session.delete(job)
                 db.session.commit()
 
-                return make_response({"message":"Job successfully deleted"}, 203)
+                return make_response({"message":"Job successfully deleted"}, 204)
 
             else: 
-                return make_response({"error":"Unauthorised"}, 401)
+                return make_response({"error":"Unauthorised"}, 403)
         
         else: 
             return make_response({"error":"No job found"}, 404)

@@ -1,7 +1,8 @@
 from config import db, bcrypt
 from flask import make_response, request, session
 from flask_restful import Resource
-from models import SavedJob
+from sqlalchemy import and_
+from models import SavedJob, Job
 
 
 class SaveJob (Resource):
@@ -9,25 +10,29 @@ class SaveJob (Resource):
     def post(self, id):
 
         if 'candidate_id' not in session:
-            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No user logged in."}, 401)
 
-        existing_save = SavedJob.query.filter(SavedJob.candidate_id == session['candidate_id'], SavedJob.id == id).first()
+        if not Job.query.filter(Job.id == id).first():
+            return make_response({"message": "No jobs found with this ID"}, 404)
 
-        if not existing_save:
+        existing_saves = SavedJob.query.filter(SavedJob.candidate_id == session['candidate_id']).all()
 
-            saved_job = SavedJob (
-                candidate_id = session['candidate_id'],
-                job_id = id
-            )
+        for save in existing_saves:
+            if save.job_id == id:
+                return make_response({"error": "This job has already been saved."}, 404)
 
-            db.session.add(saved_job)
-            db.session.commit()
+        saved_job = SavedJob (
+            candidate_id = session['candidate_id'],
+            job_id = id
+        )
+
+        db.session.add(saved_job)
+        db.session.commit()
                     
-            return make_response({"message": "Job successfully saved."}, 201)
+        return make_response({"message": "Job successfully saved."}, 201)
 
-        else:
 
-            return make_response({"error": "This job has already been saved."}, 404)
+            
 
 
 class AllSavedJobs (Resource):
@@ -35,7 +40,7 @@ class AllSavedJobs (Resource):
     def get(self):
 
         if 'candidate_id' not in session:
-            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No user logged in."}, 401)
 
         jobs = SavedJob.query.filter(SavedJob.candidate_id == session['candidate_id']).all()
 
@@ -52,7 +57,7 @@ class SavedJobById (Resource):
     def get(self,id):
 
         if 'candidate_id' not in session:
-            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No user logged in."}, 401)
 
         saved_job = SavedJob.query.filter(SavedJob.candidate_id == session['candidate_id'], SavedJob.id == id).first()
 
@@ -65,7 +70,7 @@ class SavedJobById (Resource):
     def delete(self,id):
 
         if 'candidate_id' not in session:
-            return make_response ({"error":"Unauthorised. No user logged in."}, 403)
+            return make_response ({"error":"Unauthorised. No user logged in."}, 401)
 
         saved_job = SavedJob.query.filter(SavedJob.candidate_id == session['candidate_id'], SavedJob.id == id).first()
 
@@ -73,7 +78,7 @@ class SavedJobById (Resource):
             db.session.delete(saved_job)
             db.session.commit()
 
-            return make_response({"message": "Saved job deleted"}, 400)
+            return make_response({"message": "Saved job deleted"}, 204)
 
         else:
             return make_response({"error": "Unable to delete saved job"}, 404)
