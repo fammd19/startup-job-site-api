@@ -1,6 +1,7 @@
 from config import db, bcrypt
 from flask import make_response, request, session
 from flask_restful import Resource
+from datetime import datetime, date
 from models import Job
 
 class CreateJob (Resource):
@@ -25,6 +26,8 @@ class CreateJob (Resource):
                 application_link = request.json.get('application_link'),
                 location = request.json.get('location'),
                 experience = request.json.get('experience'),
+                closing_date = datetime.strptime(request.json.get('closing_date'), '%Y-%m-%d'),
+                date_posted = date.today(),
                 company_id = session['company_id']
             )
 

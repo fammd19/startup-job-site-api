@@ -187,6 +187,8 @@ class Job (db.Model, SerializerMixin):
     application_link = db.Column(db.String, nullable=False)
     location = db.Column(db.String, nullable=False)
     experience = db.Column(db.String)
+    closing_date = db.Column(db.DateTime)
+    date_posted = db.Column(db.DateTime)
 
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'))
     company = db.relationship('Company', back_populates='jobs')
@@ -195,13 +197,13 @@ class Job (db.Model, SerializerMixin):
     serialize_rules = ('-company_id', '-company.jobs', '-company._hashed_password', '-company.admin_email','-saved_jobs')
 
     @validates('department')
-    def validate_industry(self, key, department):
+    def validate_department(self, key, department):
         departments = ["management","hr","finance","operations","tech","marketing","legal","customer services"]
 
-        if department.lower() not in industries:
+        if department.lower() not in departments:
             raise ValueError("Industry must be from the predefined list")
 
-        return industry
+        return department
 
 
 class SavedJob (db.Model, SerializerMixin):
