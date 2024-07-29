@@ -80,16 +80,15 @@ class JobById (Resource):
             return make_response({"message": "No jobs found with this ID"}, 404)
 
 
+#retest this
     def patch(self, id):
 
         if 'company_id' not in session:
             return make_response ({"error":"Unauthorised. No company logged in."}, 401)
 
-        company_id = session['company_id']
+        job = Job.query.filter(Job.id == id).first()
 
-        job = Job.query.filter(Job.company_id == session['company_id'], Job.id == id).first()
-
-        if job:
+        if Job.company_id == session['company_id']:
             for attr in request.json:
                 setattr(job, attr, request.json[attr])
                 

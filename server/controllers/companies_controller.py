@@ -7,8 +7,8 @@ class CompanySignUp (Resource):
 
     def post(self):
 
-        if 'company_id' in session:
-            return make_response ({"error":"Unauthorised. Company already logged in."}, 401)
+        if 'candidate_id' in session or 'company_id' in session:
+            return make_response ({"error":"Unauthorised. User already logged in."}, 401)
 
         company = Company(
                 name = request.json.get('name'),
@@ -39,8 +39,8 @@ class CompanyLogin(Resource):
     
     def post(self):
 
-        if 'company_id' in session:
-            return make_response ({"error":"Unauthorised. Company already logged in."}, 401)
+        if 'company_id' in session or 'candidate_id' in session:
+            return make_response ({"error":"Unauthorised. User already logged in."}, 401)
 
         admin_email = request.json.get('admin_email')
         password = request.json.get('hashed_password')
@@ -76,8 +76,7 @@ class CompanyAccount(Resource):
         if 'company_id' not in session:
             return make_response ({"error":"Unauthorised. No company logged in."}, 401)
 
-        company_id = session['company_id']
-        company = Company.query.filter(Company.id == company_id).first()
+        company = Company.query.filter(Company.id == session['company_id']).first()
 
         if company:
             return make_response(company.to_dict(), 200)
@@ -90,8 +89,7 @@ class CompanyAccount(Resource):
         if 'company_id' not in session:
             return make_response ({"error":"Unauthorised. No company logged in."}, 401)
 
-        company_id = session['company_id']
-        company = Company.query.filter(Company.id == company_id).first()
+        company = Company.query.filter(Company.id == session['company_id']).first()
 
         if company:
             for attr in request.json:
@@ -105,8 +103,7 @@ class CompanyAccount(Resource):
         if 'company_id' not in session:
             return make_response ({"error":"Unauthorised. No company logged in."}, 401)
 
-        company_id = session['company_id']
-        company = Company.query.filter(Company.id == company_id).first()
+        company = Company.query.filter(Company.id == session['company_id']).first()
 
         if company:
 
