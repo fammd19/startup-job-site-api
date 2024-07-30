@@ -7,7 +7,7 @@ from controllers.jobs_controller import CreateJob, AllJobs, JobById, JobsByCompa
 from controllers.saved_jobs_controller import SaveJob, AllSavedJobs, SavedJobById
 
 from models import db
-from flask import request
+
 
 
 @app.route('/')
