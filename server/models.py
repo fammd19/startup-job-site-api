@@ -70,7 +70,7 @@ class Company (db.Model, SerializerMixin):
     abn = db.Column(db.Integer, unique=True)
     size = db.Column(db.Integer, nullable=False)
     industry = db.Column(db.String, nullable=False)
-    csr_tags = db.Column(db.String, nullable=False)
+    about = db.Column(db.String, nullable=False)
     website_link = db.Column(db.String, nullable=False)
     facebook_link = db.Column(db.String)
     instagram_link = db.Column(db.String)
@@ -124,15 +124,6 @@ class Company (db.Model, SerializerMixin):
             raise ValueError("Industry must be from the predefined list")
 
         return industry
-
-    @validates('csr_tags')
-    def validate_csr_tags(self, key, csr_tags):
-        tags = ["B Corp","NFP"]
-
-        if csr_tags not in tags:
-            raise ValueError("CSR tag must be from the predefined list")
-
-        return csr_tags
 
     @validates('admin_email')
     def validate_email(self, key, admin_email):

@@ -15,7 +15,7 @@ class CompanySignUp (Resource):
                 abn = request.json.get('abn'),
                 size = request.json.get('size'),
                 industry = request.json.get('industry'),
-                csr_tags = request.json.get('csr_tags'),
+                about = request.json.get('about'),
                 website_link = request.json.get('website_link'),
                 facebook_link = request.json.get('facebook_link'),
                 instagram_link = request.json.get('instagram_link'),

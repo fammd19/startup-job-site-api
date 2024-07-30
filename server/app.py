@@ -1,12 +1,12 @@
 from flask import make_response
-from config import app, api
+from flask_restful import Resource
+from config import app, api, bcrypt
 from controllers.candidates_controller import CandidateSignUp, CandidateLogin, CandidateLogout, CandidateAccount
 from controllers.companies_controller import CompanySignUp, CompanyLogin, CompanyLogout, CompanyAccount, CompanyById
 from controllers.jobs_controller import CreateJob, AllJobs, JobById, JobsByCompany
 from controllers.saved_jobs_controller import SaveJob, AllSavedJobs, SavedJobById
 
-from flask_restful import Resource
-from config import db, bcrypt
+from models import db
 from flask import request
 
 
