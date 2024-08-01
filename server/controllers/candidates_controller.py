@@ -3,6 +3,8 @@ from flask import make_response, request, session
 from flask_restful import Resource
 from models import Candidate
 
+
+
 class CandidateSignUp (Resource):
 
     def post(self):
@@ -85,7 +87,6 @@ class CandidateAccount (Resource):
         if 'candidate_id' not in session:
             return make_response ({"error":"Unauthorised. No candidate logged in."}, 401)
 
-        
 
         if candidate:
             for attr in request.json:

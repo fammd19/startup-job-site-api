@@ -88,7 +88,6 @@ class JobById (Resource):
             return make_response({"message": "No jobs found with this ID"}, 404)
 
 
-#retest this
     def patch(self, id):
 
         if 'company_id' not in session:
