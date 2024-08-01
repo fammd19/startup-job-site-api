@@ -21,11 +21,10 @@ class CandidateSignUp (Resource):
 
         if candidate.id:
             session['candidate_id'] = candidate.id
-
             return make_response(candidate.to_dict(), 201)
 
         else:
-            make_response({"error":"Candidate not created"})
+            return make_response({"error":"Bad request. Unable to create candidate"}, 400)
 
 
 class CandidateLogin(Resource):
@@ -47,11 +46,11 @@ class CandidateLogin(Resource):
                 return make_response({"message":f"Candidate {candidate.first_name} logged in"})
 
             else:
-                return make_response({"error":"Unauthorised"}, 401)
+                return make_response({"error":"Unauthorised. Email or password incorrect."}, 401)
 
         else:
                 
-            return make_response({"error":"Email and password are required for login"}, 400)
+            return make_response({"error":"Bad request. Email and password are required for login"}, 400)
 
 
 class CandidateLogout(Resource):
@@ -94,7 +93,7 @@ class CandidateAccount (Resource):
                 
             db.session.commit()
 
-            return make_response(candidate.to_dict(), 203)
+            return make_response(candidate.to_dict(), 200)
 
     def delete(self):
 

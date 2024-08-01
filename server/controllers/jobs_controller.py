@@ -17,6 +17,12 @@ class CreateJob (Resource):
             if job.title.lower()==request.json.get('title').lower() and job.salary==request.json.get('salary'):
                 return make_response({"error":"A job with the same title & salary exists for this company."}, 403)
 
+        closing_date_str = request.json.get('closing_date')
+        if closing_date_str:
+            closing_date = datetime.strptime(closing_date_str, '%Y-%m-%d')
+        else:
+            closing_date = None
+
         job = Job(
                 title = request.json.get('title'),
                 salary = request.json.get('salary'),
@@ -26,7 +32,7 @@ class CreateJob (Resource):
                 application_link = request.json.get('application_link'),
                 location = request.json.get('location'),
                 experience = request.json.get('experience'),
-                closing_date = datetime.strptime(request.json.get('closing_date'), '%Y-%m-%d'),
+                closing_date = closing_date,
                 date_posted = date.today(),
                 company_id = session['company_id']
             )

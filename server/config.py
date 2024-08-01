@@ -4,6 +4,7 @@ from flask_restful import Api
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
+import secrets
 
 
 db = SQLAlchemy()
@@ -12,7 +13,8 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///job-board.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
-app.config['SECRET_KEY'] = 'my_key'
+#replace secret key
+app.config['SECRET_KEY'] = secrets.token_hex(16)
 
 migrate = Migrate(app, db)
 

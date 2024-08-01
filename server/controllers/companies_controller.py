@@ -14,7 +14,7 @@ class CompanySignUp (Resource):
                 name = request.json.get('name'),
                 abn = request.json.get('abn'),
                 size = request.json.get('size'),
-                industry = request.json.get('industry'),
+                industry = request.json.get('industry').lower(),
                 about = request.json.get('about'),
                 website_link = request.json.get('website_link'),
                 facebook_link = request.json.get('facebook_link'),
@@ -29,10 +29,10 @@ class CompanySignUp (Resource):
 
         if company.id:
                 session['company_id'] = company.id
-                return make_response({"message": "Company created"}, 201)
+                return make_response(company.to_dict(), 201)
 
         else:            
-            return make_response({"error": "Unable to create company"}, 400)
+            return make_response({"error": "Bad request. Unable to create company"}, 400)
 
 
 class CompanyLogin(Resource):
@@ -50,13 +50,13 @@ class CompanyLogin(Resource):
 
             if company and company.authenticate(password):
                 session['company_id'] = company.id
-                return make_response({"message":f"Company {company.name} logged in"}, 200)
+                return make_response({"message":f"{company.name} logged in"}, 200)
 
             else:
-                return make_response({"error":"Unauthorised"}, 401)
+                return make_response({"error":"Unauthorised. Email or password incorrect."}, 401)
 
         else:
-            return make_response({"error":"Email and password are required for login"}, 400)
+            return make_response({"error":"Bad request. Email and password are required for login"}, 400)
 
 
 
@@ -96,7 +96,7 @@ class CompanyAccount(Resource):
                 setattr(company, attr, request.json[attr])
                 
             db.session.commit()
-            return make_response(company.to_dict(), 203)
+            return make_response(company.to_dict(), 200)
 
     def delete(self):
 

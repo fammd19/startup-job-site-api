@@ -118,7 +118,7 @@ class Company (db.Model, SerializerMixin):
 
     @validates('industry')
     def validate_industry(self, key, industry):
-        industries = ["agriculture","construction","health & education","financial services","hospitality","legal","manufactuting","retail","technology"]
+        industries = ["agriculture","construction","health & education","financial services","hospitality","legal","manufactuting","retail & consumer goods","technology"]
 
         if industry.lower() not in industries:
             raise ValueError("Industry must be from the predefined list")
