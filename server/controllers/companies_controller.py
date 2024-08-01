@@ -50,7 +50,7 @@ class CompanyLogin(Resource):
 
             if company and company.authenticate(password):
                 session['company_id'] = company.id
-                return make_response({"message":f"{company.name} logged in"}, 200)
+                return make_response({"message":f"{company.name} is logged in"}, 200)
 
             else:
                 return make_response({"error":"Unauthorised. Email or password incorrect."}, 401)

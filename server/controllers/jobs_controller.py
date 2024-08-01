@@ -45,7 +45,6 @@ class CreateJob (Resource):
             return make_response(job.to_dict(), 201)
 
         else:
-            
             return make_response({"error": "Unable to create job"}, 400)
 
 
@@ -97,7 +96,7 @@ class JobById (Resource):
 
         job = Job.query.filter(Job.id == id).first()
 
-        if Job.company_id == session['company_id']:
+        if job.company_id == session['company_id']:
             for attr in request.json:
                 setattr(job, attr, request.json[attr])
                 
