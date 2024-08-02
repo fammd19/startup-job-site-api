@@ -15,7 +15,7 @@ This API something I hope to build upon to build out a fully fledged job site.
     - `pipenv install`
     - `cd server`
     - `pipenv shell`
-    - `alembic upgrade head`
+    - `flask db upgrade head`
     This will create the models but leave the database blank since these can be populated by the defined routes.
 3. To start the app, from the server folder run:
     `python app.py`
