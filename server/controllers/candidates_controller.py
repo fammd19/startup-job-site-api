@@ -87,6 +87,7 @@ class CandidateAccount (Resource):
         if 'candidate_id' not in session:
             return make_response ({"error":"Unauthorised. No candidate logged in."}, 401)
 
+        candidate = Candidate.query.filter(Candidate.id == session['candidate_id']).first()
 
         if candidate:
             for attr in request.json:

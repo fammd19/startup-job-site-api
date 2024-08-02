@@ -21,7 +21,7 @@ class Candidate (db.Model, SerializerMixin):
     saved_jobs = db.relationship('SavedJob', back_populates='candidate', cascade='all,delete-orphan')
     jobs = association_proxy('saved_jobs', 'job', creator=lambda j:SavedJob(job=j))
 
-    serialize_rules = ('-saved_jobs.candidate', '-saved_jobs.candidate_id', '-jobs.saved_jobs')
+    serialize_rules = ('-saved_jobs.candidate', '-saved_jobs.candidate_id', '-jobs.saved_jobs','-_hashed_password','-abn')
     
     @validates('first_name', 'last_name')
     def validate_name(self, key, value):
@@ -80,7 +80,7 @@ class Company (db.Model, SerializerMixin):
 
     jobs = db.relationship('Job', back_populates='company', cascade='all,delete-orphan')
 
-    serialize_rules = ('-jobs.company',)
+    serialize_rules = ('-jobs.company','-_hashed_password')
 
     @validates('name')
     def validate_name(self, key, name):
@@ -192,7 +192,7 @@ class Job (db.Model, SerializerMixin):
         departments = ["management","hr","finance","operations","tech","marketing","legal","customer services"]
 
         if department.lower() not in departments:
-            raise ValueError("Industry must be from the predefined list")
+            raise ValueError("Department must be from the predefined list")
 
         return department
 

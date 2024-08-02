@@ -4,6 +4,7 @@ from flask_restful import Resource
 from datetime import datetime, date
 from models import Job
 
+
 class CreateJob (Resource):
 
     def post(self):
@@ -72,7 +73,7 @@ class JobsByCompany (Resource):
             return make_response(jobs_dict, 200)
             
         else:
-            return make_response({"message": "No jobs posted yet for this company"}, 404)
+            return make_response({"message": "No jobs posted for this company"}, 404)
 
 
 class JobById (Resource):
@@ -85,7 +86,7 @@ class JobById (Resource):
             return make_response(job.to_dict(), 200)
             
         else:
-            return make_response({"message": "No jobs found with this ID"}, 404)
+            return make_response({"message": "No job found with this ID"}, 404)
 
 
     def patch(self, id):
